@@ -450,6 +450,8 @@ export default function App() {
 
       {/* Main Page Landing Section */}
       <section className="landing-hero" style={{ transform: `translateY(${scrollY * 0.1}px)` }}>
+        <div className="hero-glow hero-glow-1"></div>
+        <div className="hero-glow hero-glow-2"></div>
         <div className="hero-content" style={{ opacity: Math.max(1 - scrollY / 500, 0) }}>
           <div className="hero-pill">
             <span className="live-dot"></span>
