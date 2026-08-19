@@ -68,7 +68,26 @@ export default function ChatBot({ civicData }) {
   ];
 
   const handleQuickQuery = (query) => {
-    setInputValue(query);
+    const userMsg = {
+      id: Date.now(),
+      sender: 'user',
+      text: query,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setInputValue('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      const reply = generateChatbotResponse(query, civicData);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: reply,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+      setIsTyping(false);
+    }, 600);
   };
 
   return (

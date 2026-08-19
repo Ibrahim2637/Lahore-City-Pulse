@@ -33,6 +33,17 @@ function parseCSV(text) {
 
 export async function fetchCivicData() {
   try {
+    // Check sessionStorage cache (15-minute TTL)
+    const CACHE_KEY = 'lahore-civic-data';
+    const CACHE_TIME_KEY = 'lahore-civic-data-time';
+    const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+    const cached = sessionStorage.getItem(CACHE_KEY);
+    const cacheTime = sessionStorage.getItem(CACHE_TIME_KEY);
+    if (cached && cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_TTL) {
+      console.log('Using cached civic data');
+      return JSON.parse(cached);
+    }
+
     const response = await fetch(SHEET_URL);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -165,6 +176,12 @@ export async function fetchCivicData() {
       }
     };
     
+    // Cache the result in sessionStorage
+    try {
+      sessionStorage.setItem('lahore-civic-data', JSON.stringify(data));
+      sessionStorage.setItem('lahore-civic-data-time', Date.now().toString());
+    } catch (e) { /* sessionStorage might be full or unavailable */ }
+
     return data;
   } catch (error) {
     console.error("Error fetching sheet data, using fallback", error);

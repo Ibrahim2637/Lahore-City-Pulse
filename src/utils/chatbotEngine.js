@@ -141,57 +141,57 @@ export function generateChatbotResponse(userMessage, civicData) {
   if (query.includes("weather") || query.includes("environment") || query.includes("rain") || query.includes("air")) {
     const items = civicData.categories.environment.items;
     return `Here is a summary of **Environment & Weather** indicators for Lahore:\n\n` + 
-      `🟢 **AQI**: ${items.find(i=>i.id==="aqi").value}\n` + 
-      `🌡️ **Temperature**: ${items.find(i=>i.id==="temperature_c").value} (Feels like ${items.find(i=>i.id==="feels_like_c").value})\n` +
-      `💧 **Humidity**: ${items.find(i=>i.id==="humidity_percent").value}\n` +
-      `🌧️ **Rain Today**: ${items.find(i=>i.id==="today_precipitation_sum_mm").value} (${items.find(i=>i.id==="today_precipitation_probability_pct").value} probability)\n` +
-      `☀️ **Sunrise/Sunset**: ${items.find(i=>i.id==="sunrise").value} / ${items.find(i=>i.id==="sunset").value}\n\n` +
+      `🟢 **AQI**: ${items.find(i=>i.id==="aqi")?.value ?? "N/A"}\n` + 
+      `🌡️ **Temperature**: ${items.find(i=>i.id==="temperature_c")?.value ?? "N/A"} (Feels like ${items.find(i=>i.id==="feels_like_c")?.value ?? "N/A"})\n` +
+      `💧 **Humidity**: ${items.find(i=>i.id==="humidity_percent")?.value ?? "N/A"}\n` +
+      `🌧️ **Rain Today**: ${items.find(i=>i.id==="today_precipitation_sum_mm")?.value ?? "N/A"} (${items.find(i=>i.id==="today_precipitation_probability_pct")?.value ?? "N/A"} probability)\n` +
+      `☀️ **Sunrise/Sunset**: ${items.find(i=>i.id==="sunrise")?.value ?? "N/A"} / ${items.find(i=>i.id==="sunset")?.value ?? "N/A"}\n\n` +
       `You can scroll down in the Environment drawer for full details!`;
   }
 
   if (query.includes("fuel") || query.includes("petrol") || query.includes("diesel") || query.includes("cng") || query.includes("energy")) {
     const items = civicData.categories.fuel.items;
-    return `Here are the latest **Fuel & Energy Rates** (Effective ${items.find(i=>i.id==="effective_date").value}):\n\n` +
-      `⛽ **Petrol**: ${items.find(i=>i.id==="petrol_per_litre").value}\n` +
-      `⛽ **High Speed Diesel**: ${items.find(i=>i.id==="high_speed_diesel_per_litre").value}\n` +
-      `⚡ **High Octane**: ${items.find(i=>i.id==="high_octane_per_litre").value}\n` +
-      `🛢️ **Kerosene**: ${items.find(i=>i.id==="kerosene_per_litre").value}\n` +
-      `🔥 **LPG**: ${items.find(i=>i.id==="lpg_per_kg").value}\n` +
-      `🚕 **CNG Region 2 (Punjab)**: ${items.find(i=>i.id==="cng_region2_per_kg").value}`;
+    return `Here are the latest **Fuel & Energy Rates** (Effective ${items.find(i=>i.id==="effective_date")?.value ?? "N/A"}):\n\n` +
+      `⛽ **Petrol**: ${items.find(i=>i.id==="petrol_per_litre")?.value ?? "N/A"}\n` +
+      `⛽ **High Speed Diesel**: ${items.find(i=>i.id==="high_speed_diesel_per_litre")?.value ?? "N/A"}\n` +
+      `⚡ **High Octane**: ${items.find(i=>i.id==="high_octane_per_litre")?.value ?? "N/A"}\n` +
+      `🛢️ **Kerosene**: ${items.find(i=>i.id==="kerosene_per_litre")?.value ?? "N/A"}\n` +
+      `🔥 **LPG**: ${items.find(i=>i.id==="lpg_per_kg")?.value ?? "N/A"}\n` +
+      `🚕 **CNG Region 2 (Punjab)**: ${items.find(i=>i.id==="cng_region2_per_kg")?.value ?? "N/A"}`;
   }
 
   if (query.includes("gold") || query.includes("silver") || query.includes("crypto") || query.includes("dollar") || query.includes("usd") || query.includes("bitcoin") || query.includes("ethereum") || query.includes("exchange")) {
     const items = civicData.categories.markets.items;
     return `Here are the latest **Markets & Crypto Rates**:\n\n` +
-      `🏆 **Gold 24K**: ${items.find(i=>i.id==="gold_24K_per_tola").value}\n` +
-      `💵 **USD to PKR**: ${items.find(i=>i.id==="dollar_rate_pkr").value}\n` +
-      `🪙 **Bitcoin (USD)**: ${items.find(i=>i.id==="bitcoin_usd").value}\n` +
-      `🪙 **Bitcoin (PKR)**: ${items.find(i=>i.id==="bitcoin_pkr").value}\n` +
-      `💠 **Ethereum (USD)**: ${items.find(i=>i.id==="ethereum_usd").value}\n\n` +
+      `🏆 **Gold 24K**: ${items.find(i=>i.id==="gold_24K_per_tola")?.value ?? "N/A"}\n` +
+      `💵 **USD to PKR**: ${items.find(i=>i.id==="dollar_rate_pkr")?.value ?? "N/A"}\n` +
+      `🪙 **Bitcoin (USD)**: ${items.find(i=>i.id==="bitcoin_usd")?.value ?? "N/A"}\n` +
+      `🪙 **Bitcoin (PKR)**: ${items.find(i=>i.id==="bitcoin_pkr")?.value ?? "N/A"}\n` +
+      `💠 **Ethereum (USD)**: ${items.find(i=>i.id==="ethereum_usd")?.value ?? "N/A"}\n\n` +
       `Select the Markets menu for details on 22K/21K/18K Gold and Silver.`;
   }
 
   if (query.includes("economy") || query.includes("gdp") || query.includes("unemployment") || query.includes("wage") || query.includes("income") || query.includes("consumption")) {
     const items = civicData.categories.economy.items;
     return `Here is the **Macro-Economy** overview for Lahore / Punjab:\n\n` +
-      `📈 **GDP Growth Rate**: ${items.find(i=>i.id==="annual_gdp_growth_rate").value}\n` +
-      `👥 **Unemployment**: ${items.find(i=>i.id==="unemployment_rate").value}\n` +
-      `🏭 **LSM Growth**: ${items.find(i=>i.id==="large_scale_manufacturing_growth").value}\n` +
-      `💼 **Monthly Household Income**: ${items.find(i=>i.id==="average_monthly_household_income").value}\n` +
-      `🛒 **Monthly Household Consumption**: ${items.find(i=>i.id==="average_monthly_household_consumption").value}\n\n` +
+      `📈 **GDP Growth Rate**: ${items.find(i=>i.id==="annual_gdp_growth_rate")?.value ?? "N/A"}\n` +
+      `👥 **Unemployment**: ${items.find(i=>i.id==="unemployment_rate")?.value ?? "N/A"}\n` +
+      `🏭 **LSM Growth**: ${items.find(i=>i.id==="large_scale_manufacturing_growth")?.value ?? "N/A"}\n` +
+      `💼 **Monthly Household Income**: ${items.find(i=>i.id==="average_monthly_household_income")?.value ?? "N/A"}\n` +
+      `🛒 **Monthly Household Consumption**: ${items.find(i=>i.id==="average_monthly_household_consumption")?.value ?? "N/A"}\n\n` +
       `_Note: Some indicators like Total Population and Per Capita Income are currently being updated in the master database._`;
   }
 
   if (query.includes("demographic") || query.includes("school") || query.includes("literacy") || query.includes("immuniz") || query.includes("internet") || query.includes("utility") || query.includes("gas") || query.includes("electricity") || query.includes("health")) {
     const items = civicData.categories.demographics.items;
     return `Here is a summary of Lahore's **Demographics & Civic Health**:\n\n` +
-      `🎓 **Literacy Rate**: ${items.find(i=>i.id==="literacy_rate").value}\n` +
-      `🎒 **Out of School Children**: ${items.find(i=>i.id==="out_of_school_children").value}\n` +
-      `💉 **Fully Immunized Children**: ${items.find(i=>i.id==="fully_immunized_children").value}\n` +
-      `📱 **Smartphone Ownership**: ${items.find(i=>i.id==="mobile_smartphone_ownership").value}\n` +
-      `🌐 **Internet Usage (Households)**: ${items.find(i=>i.id==="household_internet_usage").value}\n` +
-      `🔥 **Gas Connection**: ${items.find(i=>i.id==="household_with_gas").value}\n` +
-      `⚡ **Electricity Connection**: ${items.find(i=>i.id==="household_with_electricity").value}`;
+      `🎓 **Literacy Rate**: ${items.find(i=>i.id==="literacy_rate")?.value ?? "N/A"}\n` +
+      `🎒 **Out of School Children**: ${items.find(i=>i.id==="out_of_school_children")?.value ?? "N/A"}\n` +
+      `💉 **Fully Immunized Children**: ${items.find(i=>i.id==="fully_immunized_children")?.value ?? "N/A"}\n` +
+      `📱 **Smartphone Ownership**: ${items.find(i=>i.id==="mobile_smartphone_ownership")?.value ?? "N/A"}\n` +
+      `🌐 **Internet Usage (Households)**: ${items.find(i=>i.id==="household_internet_usage")?.value ?? "N/A"}\n` +
+      `🔥 **Gas Connection**: ${items.find(i=>i.id==="household_with_gas")?.value ?? "N/A"}\n` +
+      `⚡ **Electricity Connection**: ${items.find(i=>i.id==="household_with_electricity")?.value ?? "N/A"}`;
   }
 
   return "I'm sorry, I couldn't find a direct match for that query in our Lahore civic dataset. Try asking about a specific term like 'AQI', 'Gold rate', 'Petrol price', 'GDP', 'Literacy rate', or 'Rainfall'. You can also type 'help' to see what topics I support!";

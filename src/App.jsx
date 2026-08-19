@@ -1,9 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
-import * as Icons from 'lucide-react';
+import {
+  Menu, X, Sun, Moon, ChevronRight, ArrowRight, ArrowLeft,
+  ShieldAlert, CloudSun, CloudRain, BookOpen, HeartPulse, Activity,
+  Thermometer, Droplets, Wind, SunDim, Coins, DollarSign,
+  TrendingUp, TrendingDown, Flame, Users, LineChart, Wallet,
+  Shield, Smartphone, Power, HelpCircle
+} from 'lucide-react';
 import { fetchCivicData } from './utils/sheetFetcher';
 import CanvasRain from './components/CanvasRain';
 import CanvasStethoscope from './components/CanvasStethoscope';
 import ChatBot from './components/ChatBot';
+
+// Icon lookup map for dynamic metric icons (defined outside App to avoid per-render recreation)
+const iconMap = {
+  Menu, X, Sun, Moon, ChevronRight, ArrowRight, ArrowLeft,
+  ShieldAlert, CloudSun, CloudRain, BookOpen, HeartPulse, Activity,
+  Thermometer, Droplets, Wind, SunDim, Coins, DollarSign,
+  TrendingUp, TrendingDown, Flame, Users, LineChart, Wallet,
+  Shield, Smartphone, Power, HelpCircle
+};
+
+const MetricIcon = ({ name, size = 20, className = "" }) => {
+  const IconComp = iconMap[name] || HelpCircle;
+  return <IconComp size={size} className={className} />;
+};
 
 export default function App() {
   const [civicData, setCivicData] = useState(null);
@@ -51,17 +71,20 @@ export default function App() {
     loadData();
   }, []);
 
-  // Parallax and Header scroll effect
+  // Parallax and Header scroll effect (throttled with rAF)
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setScrollY(window.scrollY);
-      if (window.scrollY > 50) {
-        setHeaderScrolled(true);
-      } else {
-        setHeaderScrolled(false);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          setHeaderScrolled(window.scrollY > 50);
+          ticking = false;
+        });
+        ticking = true;
       }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -73,6 +96,44 @@ export default function App() {
       document.body.style.overflow = 'auto';
     }
   }, [activeCategory]);
+
+  // Close drawers/sidebar on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (activeCategory) setActiveCategory(null);
+        else if (isSidebarOpen) setIsSidebarOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeCategory, isSidebarOpen]);
+
+  // Scroll entrance observer animation
+  useEffect(() => {
+    if (loading) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target); // trigger once
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      elements.forEach((el) => observer.unobserve(el));
+    };
+  }, [loading]);
 
   // Scroll to active subtopic when drawer opens
   useEffect(() => {
@@ -112,19 +173,64 @@ export default function App() {
     setDrawerScrollProgress(isNaN(progress) ? 0 : progress);
   };
 
-  // Icon Helper Component
-  const MetricIcon = ({ name, size = 20, className = "" }) => {
-    const IconComp = Icons[name] || Icons.HelpCircle;
-    return <IconComp size={size} className={className} />;
-  };
-
-  // Render loading page
+  // Render loading page with animated skeleton placeholders
   if (loading) {
     return (
-      <div className="app-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
-        <div className="live-dot" style={{ width: '20px', height: '20px' }}></div>
-        <h2 style={{ fontFamily: 'var(--font-title)', color: 'var(--text-primary)' }}>Lahore Nervous System Ingesting Data...</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>Connecting Google Sheet Feed</p>
+      <div className="app-container">
+        {/* Active Header during loading for premium experience */}
+        <header className="app-header">
+          <div className="header-left">
+            <button className="menu-trigger" aria-label="Open Sidebar Navigation Menu" disabled>
+              <Menu size={18} />
+            </button>
+            <div className="header-logo-pill">
+              <span>Lahore</span> Nervous System
+            </div>
+          </div>
+          <button className="theme-toggle-btn" onClick={toggleTheme} aria-label="Toggle Theme Day/Night">
+            <div className="theme-icon-container">
+              <Sun 
+                className="theme-icon sun-icon" 
+                size={22} 
+                style={{
+                  transform: theme === 'light' ? 'rotate(0deg) scale(1)' : 'rotate(90deg) scale(0)',
+                  opacity: theme === 'light' ? 1 : 0
+                }} 
+              />
+              <Moon 
+                className="theme-icon moon-icon" 
+                size={22} 
+                style={{
+                  transform: theme === 'dark' ? 'rotate(0deg) scale(1)' : 'rotate(-90deg) scale(0)',
+                  opacity: theme === 'dark' ? 1 : 0
+                }} 
+              />
+            </div>
+          </button>
+        </header>
+
+        {/* Skeleton Shimmer Layout */}
+        <div className="skeleton-page">
+          <div className="skeleton-hero">
+            <div className="skeleton-line skeleton-pill-placeholder"></div>
+            <div className="skeleton-line skeleton-title-placeholder"></div>
+            <div className="skeleton-line skeleton-title-placeholder-short"></div>
+            <div className="skeleton-line skeleton-desc-placeholder"></div>
+            <div className="skeleton-buttons">
+              <div className="skeleton-btn"></div>
+              <div className="skeleton-btn"></div>
+            </div>
+          </div>
+          <div className="skeleton-ticker"></div>
+          <div className="skeleton-section">
+            <div className="skeleton-section-title"></div>
+            <div className="skeleton-grid-pulse">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="skeleton-card-pulse"></div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -211,6 +317,34 @@ export default function App() {
     const envItems = civicData.categories.environment.items;
     const marketItems = civicData.categories.markets.items;
     const fuelItems = civicData.categories.fuel.items;
+
+    const calculateTrend = (id, currentValueStr) => {
+      const cleanStr = currentValueStr.replace(/,/g, '');
+      const current = parseFloat(cleanStr);
+      if (isNaN(current)) return { symbol: '—', direction: 'neutral' };
+
+      const baselines = {
+        aqi: 140,
+        temperature_c: 28,
+        petrol_per_litre: 260,
+        gold_24K_per_tola: 240000,
+        dollar_rate_pkr: 278,
+        bitcoin_usd: 60000
+      };
+
+      const base = baselines[id];
+      if (base === undefined) return { symbol: '—', direction: 'neutral' };
+
+      if (current > base) {
+        const isNegative = ['aqi', 'petrol_per_litre', 'dollar_rate_pkr'].includes(id);
+        return { symbol: '▲', direction: isNegative ? 'down' : 'up' };
+      } else if (current < base) {
+        const isNegative = ['aqi', 'petrol_per_litre', 'dollar_rate_pkr'].includes(id);
+        return { symbol: '▼', direction: isNegative ? 'up' : 'down' };
+      }
+      return { symbol: '—', direction: 'neutral' };
+    };
+
     return [
       {
         title: "AIR QUALITY INDEX",
@@ -218,7 +352,8 @@ export default function App() {
         unit: "",
         category: "Air Quality (Lahore)",
         date: civicData.lastUpdated,
-        color: "var(--lahore-terracotta)"
+        color: "var(--lahore-terracotta)",
+        trend: calculateTrend("aqi", envItems.find(i => i.id === "aqi")?.value || "140")
       },
       {
         title: "TEMPERATURE",
@@ -226,7 +361,8 @@ export default function App() {
         unit: "°C",
         category: "Weather (Lahore)",
         date: civicData.lastUpdated,
-        color: "var(--lahore-sky)"
+        color: "var(--lahore-sky)",
+        trend: calculateTrend("temperature_c", envItems.find(i => i.id === "temperature_c")?.value || "26.2")
       },
       {
         title: "PETROL",
@@ -234,7 +370,8 @@ export default function App() {
         unit: "PKR/L",
         category: "Fuel Prices",
         date: civicData.lastUpdated,
-        color: "var(--lahore-terracotta)"
+        color: "var(--lahore-terracotta)",
+        trend: calculateTrend("petrol_per_litre", fuelItems.find(i => i.id === "petrol_per_litre")?.value || "325")
       },
       {
         title: "GOLD 24K",
@@ -242,7 +379,8 @@ export default function App() {
         unit: "PKR/tola",
         category: "Gold & Rates",
         date: civicData.lastUpdated,
-        color: "var(--lahore-gold)"
+        color: "var(--lahore-gold)",
+        trend: calculateTrend("gold_24K_per_tola", marketItems.find(i => i.id === "gold_24K_per_tola")?.value || "450150")
       },
       {
         title: "US DOLLAR",
@@ -250,7 +388,8 @@ export default function App() {
         unit: "PKR",
         category: "Gold & Rates",
         date: civicData.lastUpdated,
-        color: "var(--lahore-green)"
+        color: "var(--lahore-green)",
+        trend: calculateTrend("dollar_rate_pkr", marketItems.find(i => i.id === "dollar_rate_pkr")?.value || "279")
       },
       {
         title: "BITCOIN",
@@ -258,7 +397,8 @@ export default function App() {
         unit: "USD",
         category: "Crypto",
         date: civicData.lastUpdated,
-        color: "#9C27B0"
+        color: "#9C27B0",
+        trend: calculateTrend("bitcoin_usd", marketItems.find(i => i.id === "bitcoin_usd")?.value || "63228")
       }
     ];
   };
@@ -346,7 +486,7 @@ export default function App() {
             onClick={() => setIsSidebarOpen(true)}
             aria-label="Open Sidebar Navigation Menu"
           >
-            <Icons.Menu size={18} />
+            <Menu size={18} />
           </button>
           
           <div className="header-logo-pill">
@@ -361,7 +501,7 @@ export default function App() {
           aria-label="Toggle Theme Day/Night"
         >
           <div className="theme-icon-container">
-            <Icons.Sun 
+            <Sun 
               className="theme-icon sun-icon" 
               size={22} 
               style={{
@@ -369,7 +509,7 @@ export default function App() {
                 opacity: theme === 'light' ? 1 : 0
               }} 
             />
-            <Icons.Moon 
+            <Moon 
               className="theme-icon moon-icon" 
               size={22} 
               style={{
@@ -390,7 +530,7 @@ export default function App() {
           <div className="sidebar-header">
             <h3 style={{ fontFamily: 'var(--font-title)', color: 'var(--text-primary)' }}>Nervous Topics</h3>
             <button className="sidebar-close" onClick={() => setIsSidebarOpen(false)}>
-              <Icons.X size={20} />
+              <X size={20} />
             </button>
           </div>
 
@@ -405,7 +545,7 @@ export default function App() {
                   <li key={catKey} className="topic-item-container">
                     <div className="topic-row" onClick={() => setExpandedTopic(isExpanded ? null : catKey)}>
                       <div className="topic-title-area-left">
-                        <Icons.ChevronRight 
+                        <ChevronRight 
                           size={16} 
                           className={`arrow-icon ${isExpanded ? 'expanded' : ''}`} 
                           onClick={(e) => {
@@ -467,7 +607,7 @@ export default function App() {
 
           <div className="hero-buttons">
             <button className="btn-primary" onClick={() => handleSubtopicClick("environment", "aqi-section")}>
-              Start with the air <Icons.ArrowRight size={18} />
+              Start with the air <ArrowRight size={18} />
             </button>
             <a href="#pulse" className="btn-secondary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
               See today's pulse
@@ -482,7 +622,7 @@ export default function App() {
       </section>
 
       {/* SECTION 2: Today's Pulse */}
-      <section id="pulse" className="landing-section-pulse">
+      <section id="pulse" className="landing-section-pulse animate-on-scroll">
         {/* Ticker marquee display */}
         <div className="pulse-ticker-container">
           <div className="pulse-ticker-track">
@@ -510,6 +650,18 @@ export default function App() {
                       {card.unit}
                     </span>
                   )}
+                  {card.trend && card.trend.symbol !== '—' && (
+                    <span className="pulse-card-trend-icon" style={{
+                      color: card.trend.direction === 'up' ? '#27ae60' : '#c0392b',
+                      fontSize: '0.9rem',
+                      marginLeft: '8px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      fontWeight: '800'
+                    }}>
+                      {card.trend.symbol}
+                    </span>
+                  )}
                 </div>
                 <div className="pulse-card-footer">
                   {card.category} • {card.date}
@@ -521,7 +673,7 @@ export default function App() {
       </section>
 
       {/* SECTION 3: Explore the City */}
-      <section className="landing-section-explore">
+      <section className="landing-section-explore animate-on-scroll">
         <div className="explore-inner-container">
           <h2 className="section-title">Explore the city</h2>
           <p className="section-subtitle" style={{ marginBottom: '60px' }}>Select any subtopic below to examine detailed statistics, live rates, and interactive visualizers.</p>
@@ -552,7 +704,7 @@ export default function App() {
                       <p className="explore-subtopic-desc">{card.desc}</p>
                     </div>
                     <div className="explore-subtopic-footer" style={{ color: section.color }}>
-                      Open <Icons.ArrowRight size={14} className="explore-subtopic-arrow" />
+                      Open <ArrowRight size={14} className="explore-subtopic-arrow" />
                     </div>
                   </div>
                 ))}
@@ -575,7 +727,7 @@ export default function App() {
             {/* Drawer Header */}
             <div className="drawer-header">
               <button className="drawer-back-btn" onClick={() => setActiveCategory(null)}>
-                <Icons.ArrowLeft size={18} /> Back to Lahore
+                <ArrowLeft size={18} /> Back to Lahore
               </button>
               
               <div className="drawer-title-area">
@@ -598,29 +750,36 @@ export default function App() {
                   {/* Air Quality Index Section */}
                   <div id="aqi-section" className="drawer-section-anchor">
                     <h3 className="subtopic-title-header">
-                      <Icons.ShieldAlert size={26} color="var(--lahore-terracotta)" /> Air Quality Index (AQI)
+                      <ShieldAlert size={26} color="var(--lahore-terracotta)" /> Air Quality Index (AQI)
                     </h3>
                     <div className="metrics-grid">
                       {category.items.filter(item => item.id === "aqi").map(item => (
                         <div key={item.id} className="metric-card" style={{ gridColumn: '1 / -1' }}>
                           <div>
-                            <div className="card-header-icon"><Icons.ShieldAlert size={28} /></div>
+                            <div className="card-header-icon"><ShieldAlert size={28} /></div>
                             <div className="metric-label">{item.label}</div>
                             <div className="metric-value" style={{ color: 'var(--lahore-terracotta)', fontSize: '4.5rem' }}>{item.value}</div>
                           </div>
                           <div className="metric-desc">
-                            <span style={{
-                              background: 'var(--accent-light)',
-                              color: 'var(--text-primary)',
-                              padding: '4px 10px',
-                              borderRadius: '20px',
-                              fontWeight: 700,
-                              fontSize: '0.8rem',
-                              marginRight: '10px',
-                              border: '1px solid var(--accent-color)'
-                            }}>
-                              Unhealthy
-                            </span>
+                            {(() => {
+                              const v = parseInt(item.value);
+                              const label = v <= 50 ? 'Good' : v <= 100 ? 'Moderate' : v <= 150 ? 'Sensitive' : v <= 200 ? 'Unhealthy' : v <= 300 ? 'Very Unhealthy' : 'Hazardous';
+                              const color = v <= 50 ? '#27ae60' : v <= 100 ? '#f39c12' : v <= 150 ? '#e67e22' : v <= 200 ? '#c0392b' : '#8e44ad';
+                              return (
+                                <span style={{
+                                  background: color + '18',
+                                  color: color,
+                                  padding: '4px 10px',
+                                  borderRadius: '20px',
+                                  fontWeight: 700,
+                                  fontSize: '0.8rem',
+                                  marginRight: '10px',
+                                  border: `1px solid ${color}`
+                                }}>
+                                  {label}
+                                </span>
+                              );
+                            })()}
                             {item.description}
                           </div>
                         </div>
@@ -631,7 +790,7 @@ export default function App() {
                   {/* Weather Info Section */}
                   <div id="weather-section" className="drawer-section-anchor">
                     <h3 className="subtopic-title-header">
-                      <Icons.CloudSun size={26} color="var(--lahore-gold)" /> Weather & Climate
+                      <CloudSun size={26} color="var(--lahore-gold)" /> Weather & Climate
                     </h3>
                     <div className="metrics-grid">
                       {category.items.filter(item => !["aqi", "precipitation_mm", "rain_mm", "today_precipitation_sum_mm", "today_precipitation_probability_pct"].includes(item.id)).map(item => (
@@ -650,7 +809,7 @@ export default function App() {
                   {/* Rain & Immersive rain effects container */}
                   <div id="rain-section" className="drawer-section-anchor">
                     <h3 className="subtopic-title-header">
-                      <Icons.CloudRain size={26} color="var(--lahore-sky)" /> Rain & Precipitationsum
+                      <CloudRain size={26} color="var(--lahore-sky)" /> Rain & Precipitationsum
                     </h3>
                     <div className="immersive-section-wrapper">
                       {/* Active canvas rain background */}
@@ -686,7 +845,7 @@ export default function App() {
                   {/* Literacy & Schooling Section */}
                   <div id="education-section" className="drawer-section-anchor">
                     <h3 className="subtopic-title-header">
-                      <Icons.BookOpen size={26} color="var(--lahore-green)" /> Literacy & Schooling
+                      <BookOpen size={26} color="var(--lahore-green)" /> Literacy & Schooling
                     </h3>
                     <div className="metrics-grid">
                       {category.items.filter(item => ["literacy_rate", "out_of_school_children"].includes(item.id)).map(item => (
@@ -705,7 +864,7 @@ export default function App() {
                   {/* Immunization & Civic Health Section (contains stethoscope scroll drawing canvas) */}
                   <div id="health-section" className="drawer-section-anchor">
                     <h3 className="subtopic-title-header">
-                      <Icons.HeartPulse size={26} color="var(--lahore-terracotta)" /> Immunization & Health
+                      <HeartPulse size={26} color="var(--lahore-terracotta)" /> Immunization & Health
                     </h3>
                     <div className="immersive-section-wrapper" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <div className="immersive-overlay-content" style={{ flex: 1 }}>
@@ -736,7 +895,7 @@ export default function App() {
                   {/* Utilities Section */}
                   <div id="utilities-section" className="drawer-section-anchor">
                     <h3 className="subtopic-title-header">
-                      <Icons.Activity size={26} color="var(--lahore-gold)" /> Household Connectivity
+                      <Activity size={26} color="var(--lahore-gold)" /> Household Connectivity
                     </h3>
                     <div className="metrics-grid">
                       {category.items.filter(item => ["household_with_gas", "household_with_electricity", "mobile_smartphone_ownership", "internet_usage", "household_internet_usage"].includes(item.id)).map(item => (
