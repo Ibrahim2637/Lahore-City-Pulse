@@ -1206,14 +1206,33 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
   padding: 80px 10%; /* 10% padding from left and right border */
   background-color: var(--pulse-bg); /* Solid custom color */
+  background-image: linear-gradient(135deg, var(--pulse-bg) 0%, var(--accent-light) 100%);
   z-index: 10;
   border-top: 1px solid var(--card-border);
+  overflow: hidden;
+}
+
+/* Subtle dot-mesh backdrop for a hi-tech civic center look */
+.landing-section-pulse::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(20, 90, 50, 0.05) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme='dark'] .landing-section-pulse::before {
+  background-image: radial-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px);
 }
 
 .pulse-inner-container {
   width: 100%;
   max-width: 1400px;
   margin: 0; /* Align perfectly with left border distance */
+  position: relative;
+  z-index: 2; /* Sits above pattern */
 }
 
 .section-title {
@@ -1339,15 +1358,36 @@ h1, h2, h3, h4, h5, h6 {
 .landing-section-explore {
   padding: 80px 10% 120px 10%; /* 10% padding from left and right border */
   background-color: var(--explore-bg); /* Solid custom color */
+  background-image: radial-gradient(circle at 80% 20%, rgba(20, 90, 50, 0.04) 0%, transparent 60%);
   z-index: 10;
   position: relative;
   border-top: 1px solid var(--card-border);
+  overflow: hidden;
+}
+
+[data-theme='dark'] .landing-section-explore {
+  background-image: radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.04) 0%, transparent 60%);
+}
+
+/* Architectural technical grid overlay */
+.landing-section-explore::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(var(--card-border) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--card-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.15; /* subtle grid pattern */
+  pointer-events: none;
+  z-index: 1;
 }
 
 .explore-inner-container {
   width: 100%;
   max-width: 1400px;
   margin: 0; /* Align perfectly with left border distance */
+  position: relative;
+  z-index: 2; /* Sits above pattern */
 }
 
 .explore-category-block {

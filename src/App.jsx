@@ -8,7 +8,14 @@ import ChatBot from './components/ChatBot';
 export default function App() {
   const [civicData, setCivicData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState('light');
+  
+  // Initialize theme based on local storage or system preference
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem('lahore-theme');
+    if (stored) return stored;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? 'dark' : 'light';
+  });
   
   // Navigation states
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -26,8 +33,8 @@ export default function App() {
 
   // Initialize theme and load data
   useEffect(() => {
-    // Default theme setup
-    document.documentElement.setAttribute('data-theme', 'light');
+    // Default theme setup based on initial state
+    document.documentElement.setAttribute('data-theme', theme);
     
     async function loadData() {
       const data = await fetchCivicData();
@@ -77,6 +84,7 @@ export default function App() {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
     document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('lahore-theme', nextTheme);
   };
 
   const handleTopicClick = (catKey) => {
