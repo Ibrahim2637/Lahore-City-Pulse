@@ -242,15 +242,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .hero-desc {
   font-size: 1.25rem;
-  color: #112d1b; /* A good, hard, dark Lahori forest green */
+  color: #4b5563; /* medium gray for readability in light mode */
   max-width: 600px;
   margin: 0 0 48px 0; /* Align left */
   text-align: left;
-  font-weight: 600; /* make color hard and bold */
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9); /* light shadow for bright skyline */
 }
 
 [data-theme='dark'] .hero-desc {
-  color: #112d1b !important; /* Keep it dark green for contrast against bright monuments skyline */
+  color: #d1d5db !important; /* premium light grey in dark mode */
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95) !important; /* solid shadow for dark mode readability on bright skyline */
 }
 
 .hero-buttons {
@@ -1540,63 +1542,102 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 600px) {
   /* Landing Hero Mobile spacing */
   .landing-hero {
-    padding: 0 6% !important; /* closer margin on mobile */
+    padding: 75px 8% 50px 8% !important; /* space for header, bottom padding clears edge */
+    justify-content: flex-end !important; /* stick content to bottom of viewport */
     align-items: flex-start;
     text-align: left;
-    height: 100vh;
+    height: 100vh !important;
+    overflow: hidden !important;
+    transform: none !important; /* disable parallax stretch */
   }
 
   .hero-content {
-    margin-top: -40px;
+    margin-top: 0 !important;
     max-width: 100%;
     align-items: flex-start;
+    margin-bottom: 20%;
   }
 
   .hero-pill {
-    padding: 6px 14px;
-    font-size: 0.72rem;
-    margin-bottom: 24px;
+    padding: 5px 12px;
+    font-size: 0.7rem;
+    margin-bottom: 12px !important; /* tight spacing */
   }
 
   .hero-title {
-    font-size: 2.6rem !important; /* dramatic bold text */
-    line-height: 1.15;
-    margin-bottom: 20px;
+    font-size: 2.8rem !important; /* compact to guarantee 100vh fit */
+    line-height: 1.05 !important;
+    font-weight: 800 !important;
+    margin-bottom: 12px !important; /* tight spacing */
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8) !important; /* clean light shadow for legibility */
+  }
+
+  [data-theme='dark'] .hero-title {
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8) !important;
   }
 
   .hero-desc {
-    font-size: 1rem !important;
-    line-height: 1.5;
-    margin-bottom: 36px;
-    color: var(--text-secondary);
+    font-size: 1.05rem !important; /* compact */
+    line-height: 1.4 !important;
+    margin-bottom: 20px !important; /* tight spacing */
+    color: var(--text-secondary) !important; /* dark green-charcoal in light mode */
+    font-weight: 500 !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+  }
+
+  [data-theme='dark'] .hero-desc {
+    color: #cbd5e1 !important; /* light grey in dark mode */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95) !important;
   }
 
   .hero-buttons {
-    flex-direction: column;
-    width: 100%;
-    gap: 12px;
+    flex-direction: column !important; /* stacked vertically */
+    width: 100% !important;
+    align-items: flex-start !important;
+    gap: 10px !important; /* tight spacing */
   }
 
   .btn-primary, .btn-secondary {
-    width: 100% !important;
-    padding: 15px 24px !important;
-    font-size: 0.95rem !important;
-    border-radius: 16px !important; /* fancy modern styling */
+    width: auto !important;
+    min-width: 240px !important; /* matching screenshot buttons proportions */
+    padding: 12px 28px !important; /* slightly compact padding to fit vertical height budget */
+    font-size: 0.9rem !important;
+    border-radius: 50px !important; /* round capsule edges */
     justify-content: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    text-align: center !important;
   }
 
   .btn-primary {
-    box-shadow: 0 8px 24px rgba(20, 90, 50, 0.25) !important;
+    box-shadow: 0 6px 16px rgba(20, 90, 50, 0.2) !important;
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.6) !important; /* glassy white background matching screenshot */
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: #112d1b !important; /* dark text matching screenshot */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
   }
 
   [data-theme='dark'] .btn-primary {
-    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.25) !important;
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.2) !important;
   }
 
-  /* Fixed Background landmarks on Mobile */
+  [data-theme='dark'] .btn-secondary {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Fixed Background landmarks on Mobile (Brought UP to fit screen visually) */
   .hero-landscape-layer {
-    background-size: cover;
-    background-position: bottom 8% center; /* push landmarks slightly up to avoid cut-off */
+    background-size: cover !important;
+    background-position: bottom center !important; /* sit flat at the bottom boundary */
+    transform: none !important; /* disable parallax stretch */
   }
 
   /* Ticker on Mobile: fancy fading horizontal strip */
