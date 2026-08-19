@@ -1977,3 +1977,47 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Live Civic Alerts Banner */
+.civic-alerts-banner {
+  background: linear-gradient(90deg, #c0392b, #e74c3c);
+  color: #ffffff;
+  padding: 8px 10%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(192, 57, 43, 0.2);
+  position: relative;
+  z-index: 10;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideAlertDown 0.5s ease-out forwards;
+}
+
+.civic-alerts-banner .alerts-badge {
+  background: #ffffff;
+  color: #c0392b;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  animation: pulseAlertBadge 1.5s infinite;
+}
+
+@keyframes slideAlertDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulseAlertBadge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (max-width: 600px) {
+  .civic-alerts-banner {
+    padding: 8px 6%;
+    font-size: 0.78rem;
+  }
+}
+

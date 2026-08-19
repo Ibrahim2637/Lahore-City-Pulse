@@ -61,7 +61,7 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Load civic data on mount
+  // Load civic data on mount and poll for updates every 20 seconds in the background
   useEffect(() => {
     async function loadData() {
       const data = await fetchCivicData();
@@ -69,6 +69,9 @@ export default function App() {
       setLoading(false);
     }
     loadData();
+
+    const interval = setInterval(loadData, 20000); // 20-second polling interval
+    return () => clearInterval(interval);
   }, []);
 
   // Parallax and Header scroll effect (throttled with rAF)
@@ -520,6 +523,14 @@ export default function App() {
           </div>
         </button>
       </header>
+
+      {/* Live Civic Alerts Banner */}
+      {civicData?.alerts && civicData.alerts.toLowerCase() !== 'none' && (
+        <div className="civic-alerts-banner">
+          <span className="alerts-badge">ALERT</span>
+          <div className="alerts-text">{civicData.alerts}</div>
+        </div>
+      )}
 
       {/* Hamburger Sidebar navigation */}
       <div 

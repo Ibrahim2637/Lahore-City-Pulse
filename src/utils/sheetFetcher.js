@@ -1,6 +1,6 @@
 // Fetch and parse data from Google Sheet
 
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/15wnmBi_Jz-nUHELE8UHzZR1sIwjWkN0_RMgjSYGMMbw/gviz/tq?tqx=out:csv";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/1SPqvXIBVhGAjFWR86s4JlehaPMs6zq_31m61KvtQRKc/gviz/tq?tqx=out:csv";
 
 // Helper to parse CSV robustly (handling double quotes and commas inside them)
 function parseCSV(text) {
@@ -33,10 +33,10 @@ function parseCSV(text) {
 
 export async function fetchCivicData() {
   try {
-    // Check sessionStorage cache (15-minute TTL)
+    // Check sessionStorage cache (5-second TTL for real-time responsive updates)
     const CACHE_KEY = 'lahore-civic-data';
     const CACHE_TIME_KEY = 'lahore-civic-data-time';
-    const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+    const CACHE_TTL = 5 * 1000; // 5 seconds
     const cached = sessionStorage.getItem(CACHE_KEY);
     const cacheTime = sessionStorage.getItem(CACHE_TIME_KEY);
     if (cached && cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_TTL) {
@@ -51,25 +51,78 @@ export async function fetchCivicData() {
     const csvText = await response.text();
     const rows = parseCSV(csvText);
     
-    // Header should be: date, category, metric, value
     // Let's build a flat dictionary of metric -> value
     const metricsMap = {};
     let dateStr = new Date().toISOString().split('T')[0]; // Default date
 
-    // First row is header, skip it
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      if (row.length >= 4) {
-        const dateVal = row[0];
-        const categoryVal = row[1];
-        const metricVal = row[2];
-        const valueVal = row[3];
-        
-        if (metricVal) {
-          metricsMap[metricVal.trim()] = valueVal ? valueVal.trim() : "";
+    // Determine format: Tabular vs Key-Value
+    const headerRow = rows[0] || [];
+    const isTabularFormat = headerRow.some(cell => cell && cell.toLowerCase().includes('timestamp'));
+
+    if (isTabularFormat && rows.length > 1) {
+      // Find the latest valid row (loop from the end to find a row that is populated)
+      let latestRow = null;
+      for (let i = rows.length - 1; i >= 1; i--) {
+        const row = rows[i];
+        if (row && row.length > 0 && row[0] && row[0].trim() !== '') {
+          latestRow = row;
+          break;
         }
-        if (dateVal && i === 1) {
-          dateStr = dateVal.trim();
+      }
+
+      if (latestRow) {
+        // Parse date from the first column of the latest row
+        dateStr = latestRow[0].trim();
+
+        // Helper to find column index by list of possible names (case-insensitive, symbols stripped)
+        const getColIdx = (possibleNames) => {
+          return headerRow.findIndex(cell => {
+            if (!cell) return false;
+            const normalized = cell.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+            return possibleNames.some(name => normalized.includes(name.toLowerCase().replace(/[^a-z0-9]/g, '')));
+          });
+        };
+
+        // Helper to set metricsMap value if column is found
+        const setMetric = (metricId, possibleNames) => {
+          const idx = getColIdx(possibleNames);
+          if (idx !== -1 && latestRow[idx] !== undefined && latestRow[idx] !== null) {
+            metricsMap[metricId] = latestRow[idx].trim();
+          }
+        };
+
+        setMetric("temperature_c", ["temperaturec", "temp"]);
+        setMetric("humidity_percent", ["humiditypct", "humidity"]);
+        setMetric("precipitation_mm", ["precipitationmm", "precip"]);
+        setMetric("rain_mm", ["precipitationmm", "precip", "rain"]); 
+        setMetric("wind_speed_kmh", ["windspeedkmh", "windspeed"]);
+        setMetric("wind_direction_deg", ["winddirectiondeg", "winddir"]);
+        setMetric("pressure_hpa", ["pressurehpa", "pressure"]);
+        setMetric("aqi", ["usaqi", "aqi"]);
+        setMetric("pm2_5", ["pm25", "pm2_5"]);
+        setMetric("pm10", ["pm10"]);
+        setMetric("european_aqi", ["europeanaqi"]);
+        setMetric("co_concentration", ["co"]);
+        setMetric("no2_concentration", ["no2"]);
+        setMetric("so2_concentration", ["so2"]);
+        setMetric("ozone_concentration", ["ozone"]);
+        setMetric("weather_alerts", ["alerts"]);
+      }
+    } else {
+      // Key-Value Row-by-Row parsing format
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (row.length >= 4) {
+          const dateVal = row[0];
+          const metricVal = row[2];
+          const valueVal = row[3];
+          
+          if (metricVal) {
+            metricsMap[metricVal.trim()] = valueVal ? valueVal.trim() : "";
+          }
+          if (dateVal && i === 1) {
+            dateStr = dateVal.trim();
+          }
         }
       }
     }
@@ -84,6 +137,7 @@ export async function fetchCivicData() {
     // Grouping according to requirements
     const data = {
       lastUpdated: dateStr,
+      alerts: metricsMap["weather_alerts"] || "none",
       categories: {
         environment: {
           title: "Environment & Weather",
@@ -106,7 +160,13 @@ export async function fetchCivicData() {
             { id: "today_precipitation_probability_pct", label: "Rain Probability", value: getVal("today_precipitation_probability_pct", "%", "100%"), description: "Chance of rainfall today" },
             { id: "today_uv_index_max", label: "Max UV Index", value: getVal("today_uv_index_max", "", "8"), description: "Maximum UV radiation forecast" },
             { id: "sunrise", label: "Sunrise", value: getVal("sunrise", "", "05:28 AM"), description: "Time of sunrise (PKT)" },
-            { id: "sunset", label: "Sunset", value: getVal("sunset", "", "06:45 PM"), description: "Time of sunset (PKT)" }
+            { id: "sunset", label: "Sunset", value: getVal("sunset", "", "06:45 PM"), description: "Time of sunset (PKT)" },
+            { id: "pm2_5", label: "PM2.5 Particulates", value: getVal("pm2_5", " µg/m³", "N/A"), description: "Fine particulate matter concentration" },
+            { id: "pm10", label: "PM10 Particulates", value: getVal("pm10", " µg/m³", "N/A"), description: "Coarse particulate matter concentration" },
+            { id: "co_concentration", label: "Carbon Monoxide (CO)", value: getVal("co_concentration", " ppb", "N/A"), description: "CO gas concentration in parts per billion" },
+            { id: "no2_concentration", label: "Nitrogen Dioxide (NO2)", value: getVal("no2_concentration", " ppb", "N/A"), description: "NO2 gas concentration in parts per billion" },
+            { id: "so2_concentration", label: "Sulfur Dioxide (SO2)", value: getVal("so2_concentration", " ppb", "N/A"), description: "SO2 gas concentration in parts per billion" },
+            { id: "ozone_concentration", label: "Ozone (O3)", value: getVal("ozone_concentration", " ppb", "N/A"), description: "Ozone concentration in parts per billion" }
           ]
         },
         fuel: {
