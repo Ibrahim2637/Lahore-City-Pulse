@@ -242,10 +242,15 @@ h1, h2, h3, h4, h5, h6 {
 
 .hero-desc {
   font-size: 1.25rem;
-  color: var(--text-secondary);
+  color: #112d1b; /* A good, hard, dark Lahori forest green */
   max-width: 600px;
   margin: 0 0 48px 0; /* Align left */
   text-align: left;
+  font-weight: 600; /* make color hard and bold */
+}
+
+[data-theme='dark'] .hero-desc {
+  color: #112d1b !important; /* Keep it dark green for contrast against bright monuments skyline */
 }
 
 .hero-buttons {

@@ -9,10 +9,10 @@ export default function App() {
   const [civicData, setCivicData] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Initialize theme based on local storage or system preference
+  // Initialize theme based on session storage or system preference
   const [theme, setTheme] = useState(() => {
-    const stored = localStorage.getItem('lahore-theme');
-    if (stored) return stored;
+    const sessionTheme = sessionStorage.getItem('lahore-theme');
+    if (sessionTheme) return sessionTheme;
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     return prefersDark ? 'dark' : 'light';
   });
@@ -31,11 +31,18 @@ export default function App() {
   const [drawerScrollProgress, setDrawerScrollProgress] = useState(0);
   const drawerBodyRef = useRef(null);
 
-  // Initialize theme and load data
+  // Clear legacy localStorage theme that might block system preference detection
   useEffect(() => {
-    // Default theme setup based on initial state
+    localStorage.removeItem('lahore-theme');
+  }, []);
+
+  // Sync theme changes to HTML attribute in real-time
+  useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    
+  }, [theme]);
+
+  // Load civic data on mount
+  useEffect(() => {
     async function loadData() {
       const data = await fetchCivicData();
       setCivicData(data);
@@ -84,7 +91,7 @@ export default function App() {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
     document.documentElement.setAttribute('data-theme', nextTheme);
-    localStorage.setItem('lahore-theme', nextTheme);
+    sessionStorage.setItem('lahore-theme', nextTheme);
   };
 
   const handleTopicClick = (catKey) => {
