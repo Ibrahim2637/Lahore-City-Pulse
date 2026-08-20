@@ -685,6 +685,21 @@ export default function App() {
         {/* Lower background pattern has been toggled in global App wrapper */}
         {/* Upper background landmarks layer */}
         <div className="hero-landscape-layer" style={{ transform: `translateY(${scrollY * 0.15}px)` }}></div>
+        
+        {/* Dynamic Night Scene Illumination Overlay for Dark Theme */}
+        <div 
+          className="hero-night-scene-overlay" 
+          style={{ 
+            opacity: theme === 'dark' ? 1 : 0,
+            transform: `translateY(${scrollY * 0.15}px)` 
+          }}
+        >
+          <div className="night-floodlight spotlight-1"></div>
+          <div className="night-floodlight spotlight-2"></div>
+          <div className="night-floodlight spotlight-3"></div>
+          <div className="night-windows-glow"></div>
+        </div>
+
         <div className="hero-gradient-overlay"></div>
       </section>
 
