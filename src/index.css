@@ -1337,6 +1337,7 @@ h1, h2, h3, h4, h5, h6 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 24px;
+  perspective: 1200px;
 }
 
 .pulse-card {
@@ -1484,6 +1485,7 @@ h1, h2, h3, h4, h5, h6 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
+  perspective: 1200px;
 }
 
 .explore-subtopic-card {
@@ -1938,17 +1940,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Scroll Entrance Animations */
-.animate-on-scroll {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-}
-
-.animate-on-scroll.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 @media (max-width: 600px) {
   .skeleton-page {

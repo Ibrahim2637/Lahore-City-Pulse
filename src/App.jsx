@@ -10,6 +10,11 @@ import { fetchCivicData } from './utils/sheetFetcher';
 import CanvasRain from './components/CanvasRain';
 import CanvasStethoscope from './components/CanvasStethoscope';
 import ChatBot from './components/ChatBot';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Icon lookup map for dynamic metric icons (defined outside App to avoid per-render recreation)
 const iconMap = {
@@ -112,30 +117,89 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeCategory, isSidebarOpen]);
 
-  // Scroll entrance observer animation
-  useEffect(() => {
+  // 3D Cinematic Scroll Animations
+  useGSAP(() => {
     if (loading) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target); // trigger once
-          }
-        });
+
+    // 1. Hero Parallax Effect
+    gsap.to('.hero-background', {
+      y: '30%',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.hero-section',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true
+      }
+    });
+
+    // 2. Animate "Today's Pulse" cards with a 3D stagger
+    gsap.fromTo('.pulse-grid > div', 
+      { 
+        y: 100, 
+        opacity: 0, 
+        rotationX: -45, 
+        transformPerspective: 1000 
       },
       {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        y: 0,
+        opacity: 1,
+        rotationX: 0,
+        stagger: 0.1,
+        duration: 1,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: '.pulse-grid',
+          start: 'top 85%',
+          toggleActions: 'play none none reverse'
+        }
       }
     );
 
-    const elements = document.querySelectorAll('.animate-on-scroll');
-    elements.forEach((el) => observer.observe(el));
+    // 3. Stagger section titles and content
+    const sections = gsap.utils.toArray('.animate-on-scroll');
+    sections.forEach((section) => {
+      gsap.fromTo(section,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      );
+    });
 
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-    };
+    // 4. Stagger category cards (Explore the city) with 3D flip
+    gsap.fromTo('.explore-subtopic-card',
+      {
+        y: 80,
+        opacity: 0,
+        scale: 0.9,
+        rotationY: 15,
+        transformPerspective: 1000
+      },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        rotationY: 0,
+        stagger: 0.05,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: '.explore-grid',
+          start: 'top 85%',
+          toggleActions: 'play none none reverse'
+        }
+      }
+    );
+
   }, [loading]);
 
   // Scroll to active subtopic when drawer opens
