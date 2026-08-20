@@ -524,14 +524,6 @@ export default function App() {
         </button>
       </header>
 
-      {/* Live Civic Alerts Banner */}
-      {civicData?.alerts && civicData.alerts.toLowerCase() !== 'none' && (
-        <div className="civic-alerts-banner">
-          <span className="alerts-badge">ALERT</span>
-          <div className="alerts-text">{civicData.alerts}</div>
-        </div>
-      )}
-
       {/* Hamburger Sidebar navigation */}
       <div 
         className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} 
